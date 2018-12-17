@@ -85,6 +85,11 @@ Vdnet NSXT Topology Setup
 Vdnet NSXT Topology Cleanup
     [Timeout]    180 minutes
     [Arguments]    ${pod_name}  ${testrunid}
+    Open Connection  ${VDNET_LAUNCHER_HOST}
+    Wait Until Keyword Succeeds  2 min  30 sec  Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
+    Execute Command  rm -rf /tmp/vic-vdnet-nsxt.json
+    Close Connection
+
     Open Connection  %{NIMBUS_GW}
     Wait Until Keyword Succeeds  10 min  30 sec  Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
     Execute Command  ${NIMBUS_LOCATION_FULL} nimbus-ctl --nimbus=${pod_name} kill *${testrunid}*
