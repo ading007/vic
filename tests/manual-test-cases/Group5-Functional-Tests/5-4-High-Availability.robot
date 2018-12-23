@@ -16,8 +16,8 @@
 Documentation  Test 5-4 - High Availability
 Resource  ../../resources/Util.robot
 Suite Setup  Nimbus Suite Setup  High Availability Setup
-Suite Teardown  Nimbus Cleanup  ${list}
-Test Teardown  Run Keyword If Test Failed  Gather vSphere Logs
+#Suite Teardown  Nimbus Cleanup  ${list}
+#Test Teardown  Run Keyword If Test Failed  Gather vSphere Logs
 
 *** Variables ***
 ${esx_number}=  3
@@ -203,51 +203,51 @@ Test
     @{checkList}=  Create List  ${mntTest}  ${mntNamed}  ${namedVolume}
     Verify Volume Inspect Info  Before Host Power OFF  ${containerMountDataTestID}  ${checkList}
 
-    Power Off Host  ${curHost}
+  #  Power Off Host  ${curHost}
 
-    ${info}=  Run  govc vm.info \\*
-    Log  ${info}
+  #  ${info}=  Run  govc vm.info \\*
+  #  Log  ${info}
 
     # It can take a while for the host to power down and for HA to kick in
-    Wait Until Keyword Succeeds  24x  10s  VM Host Has Changed  ${curHost}  %{VCH-NAME}
+  #  Wait Until Keyword Succeeds  24x  10s  VM Host Has Changed  ${curHost}  %{VCH-NAME}
 
     # Wait for the VCH to come back up fully - if it's not completely reinitialized it will still report the old IP address 
-    Wait For VCH Initialization  12x  20 seconds
+  #  Wait For VCH Initialization  12x  20 seconds
 
-    ${info}=  Run  govc vm.info \\*
-    Log  ${info}
+  #  ${info}=  Run  govc vm.info \\*
+  #  Log  ${info}
 
-    Verify Volume Inspect Info  After Host Power OFF  ${containerMountDataTestID}  ${checkList}
+  #  Verify Volume Inspect Info  After Host Power OFF  ${containerMountDataTestID}  ${checkList}
 
     #Check if container and VCH are on the same host
-    ${shortContainerID}=  Get Substring  ${containerMountDataTestID}  0  12
-    ${testContainerName}=  Set Variable  ${mntDataTestContainer}-${shortContainerID}
-    ${testContainerHost}=  Get VM Host Name  ${testContainerName}
-    Log  ${testContainerHost}
-    Run Keyword If  "${testContainerHost}" == "${curHost}"  Wait Until Keyword Succeeds  30x  10s  VM Host Has Changed  ${curHost}  ${testContainerName}
+  #  ${shortContainerID}=  Get Substring  ${containerMountDataTestID}  0  12
+  #  ${testContainerName}=  Set Variable  ${mntDataTestContainer}-${shortContainerID}
+  #  ${testContainerHost}=  Get VM Host Name  ${testContainerName}
+  #  Log  ${testContainerHost}
+  #  Run Keyword If  "${testContainerHost}" == "${curHost}"  Wait Until Keyword Succeeds  30x  10s  VM Host Has Changed  ${curHost}  ${testContainerName}
 
     # Remove Mount Data Test Container
-    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm ${containerMountDataTestID}
-    Should Be Equal As Integers  ${rc}  0
-    Wait Until Keyword Succeeds  10x  6s  Check That VM Is Removed  ${containerMountDataTestID}
+  #  ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm ${containerMountDataTestID}
+  #  Should Be Equal As Integers  ${rc}  0
+  #  Wait Until Keyword Succeeds  10x  6s  Check That VM Is Removed  ${containerMountDataTestID}
 
     # check running containers are still running
-    :FOR  ${c}  IN  @{running}
-    \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} inspect --format '{{.State.Status}}' ${c}
-    \     Should Be Equal As Integers  ${rc}  0
-    \     Should Be Equal  ${output}  running
-    \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm -f ${c}
-    \     Log To Console  ${output}
-    \     Should Be Equal As Integers  ${rc}  0
+  #  :FOR  ${c}  IN  @{running}
+  #  \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} inspect --format '{{.State.Status}}' ${c}
+  #  \     Should Be Equal As Integers  ${rc}  0
+  #  \     Should Be Equal  ${output}  running
+  #  \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm -f ${c}
+  #  \     Log To Console  ${output}
+  #  \     Should Be Equal As Integers  ${rc}  0
 
-    # check stopped containers are still stopped
-    :FOR  ${c}  IN  @{stopped}
-    \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} inspect --format '{{.State.Status}}' ${c}
-    \     Should Be Equal As Integers  ${rc}  0
-    \     Should Be Equal  ${output}  exited
-    \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm -f ${c}
-    \     Log To Console  ${output}
-    \     Should Be Equal As Integers  ${rc}  0
+  #  # check stopped containers are still stopped
+  #  :FOR  ${c}  IN  @{stopped}
+  #  \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} inspect --format '{{.State.Status}}' ${c}
+  #  \     Should Be Equal As Integers  ${rc}  0
+  #  \     Should Be Equal  ${output}  exited
+  #  \     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm -f ${c}
+  #  \     Log To Console  ${output}
+  #  \     Should Be Equal As Integers  ${rc}  0
 
-Run Regression Tests
-    Run Regression Test With More Log Information
+#Run Regression Tests
+#    Run Regression Test With More Log Information
