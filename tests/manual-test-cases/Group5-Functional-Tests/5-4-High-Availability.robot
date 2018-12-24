@@ -17,7 +17,7 @@ Documentation  Test 5-4 - High Availability
 Resource  ../../resources/Util.robot
 Suite Setup  Nimbus Suite Setup  High Availability Setup
 Suite Teardown  Nimbus Cleanup  ${list}
-Test Teardown  Run Keyword If Test Failed  Gather vSphere Logs
+Test Teardown  Run Keyword If Test Failed  Collect Logs
 
 *** Variables ***
 ${esx_number}=  3
@@ -28,6 +28,10 @@ ${mntTest}=  /mnt/test
 ${mntNamed}=  /mnt/named
 
 *** Keywords ***
+Collect Logs
+    Gather Logs From Test Server  -failure
+    Gather vSphere Logs
+
 Run Regression Test With More Log Information
     Check ImageStore
     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} pull busybox
@@ -84,7 +88,7 @@ Run Regression Test With More Log Information
     Should Be Equal As Integers  ${rc}  0
     Check ImageStore
     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} images
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  1
     Should Not Contain  ${output}  busybox
 
     Scrape Logs For The Password
