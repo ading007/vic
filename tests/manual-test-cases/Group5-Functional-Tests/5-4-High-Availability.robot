@@ -203,6 +203,20 @@ Test
     @{checkList}=  Create List  ${mntTest}  ${mntNamed}  ${namedVolume}
     Verify Volume Inspect Info  Before Host Power OFF  ${containerMountDataTestID}  ${checkList}
 
+    # Create a container, if container host is not same to VCH host, vMotion container to VCH host.
+    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} volume create --name=volume1-test
+    Should Be Equal As Integers  ${rc}  0
+    Should Contain  ${output}  volume1-test
+
+    ${rc}  ${vmotionDataTestID}=  Run And Return Rc And Output  docker %{VCH-PARAMS} create --name=vmotion-test -v /mnt/test1 -v volume1-test:/mnt/named1 busybox
+    Should Be Equal As Integers  ${rc}  0
+
+    ${vmotionContainerName}=  Get VM display name  ${vmotionDataTestID}
+    ${vmotionContainerHost}=  Get VM Host Name  ${vmotionContainerName}
+    Log  vmotionContainerName:${vmotionContainerName} vmotionContainerHost:${vmotionContainerHost}
+    Run Keyword If  "${vmotionContainerHost}" != "${curHost}"  Run  govc vm.migrate -host cls/${curHost} -pool cls/Resources ${vmotionContainerName}
+    Sleep  30s    
+
     Power Off Host  ${curHost}
 
     ${info}=  Run  govc vm.info \\*
@@ -230,6 +244,12 @@ Test
     ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm ${containerMountDataTestID}
     Should Be Equal As Integers  ${rc}  0
     Wait Until Keyword Succeeds  10x  6s  Check That VM Is Removed  ${containerMountDataTestID}
+
+    # Remove vmotion Data Test Container
+    Wait Until Keyword Succeeds  30x  10s  VM Host Has Changed  ${curHost}  ${vmotionContainerName}
+    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} rm ${vmotionDataTestID}
+    Should Be Equal As Integers  ${rc}  0
+    Wait Until Keyword Succeeds  10x  6s  Check That VM Is Removed  ${vmotionDataTestID}
 
     # check running containers are still running
     :FOR  ${c}  IN  @{running}
