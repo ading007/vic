@@ -16,7 +16,7 @@
 Documentation  Test 11-06- Upgrade To latest Check storage quota feature
 Resource  ../../resources/Util.robot
 Suite Setup  Disable Ops User And Install VIC To Test Server
-Suite Teardown  Re-Enable Ops User And Clean Up VIC Appliance
+#Suite Teardown  Re-Enable Ops User And Clean Up VIC Appliance
 Default Tags
 
 *** Variables ***
@@ -25,6 +25,36 @@ ${old_version}=  v1.4.3
 
 *** Keywords ***
 Disable Ops User And Install VIC To Test Server
+   # ${name}=  Evaluate  'vic-iscsi-cluster-' + str(random.randint(1000,9999))  modules=random
+   # Log To Console  Create a new simple vc cluster with spec vic-cluster-2esxi-iscsi.rb...
+   # ${out}=  Deploy Nimbus Testbed  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}  args=--noSupportBundles --plugin testng --vcvaBuild "${VC_VERSION}" --esxBuild "${ESX_VERSION}" --testbedName vic-iscsi-cluster --runName ${name}  spec=vic-cluster-2esxi-iscsi.rb
+   # Log  ${out}
+   # Should Contain  ${out}  "deployment_result"=>"PASS"
+   # Log To Console  Finished creating cluster ${name}
+   # Open Connection  %{NIMBUS_GW}
+   # Wait Until Keyword Succeeds  10 min  30 sec  Login  %{NIMBUS_USER}  %{NIMBUS_PASSWORD}
+   # ${vc-ip}=  Get IP  ${name}.vc.0
+   # Log  ${vc-ip}
+   # ${pod}=  Fetch Pod  ${name}
+   # Log  ${pod}
+   # Close Connection
+    
+    Log To Console  Set environment variables up for GOVC
+    Set Environment Variable  GOVC_URL  10.92.51.102
+    Set Environment Variable  GOVC_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  GOVC_PASSWORD  Admin\!23
+
+    Log To Console  Deploy VIC to the VC cluster
+    Set Environment Variable  TEST_URL_ARRAY  10.92.51.102
+    Set Environment Variable  TEST_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  TEST_PASSWORD  Admin\!23
+    Set Environment Variable  BRIDGE_NETWORK  bridge
+    Set Environment Variable  PUBLIC_NETWORK  vm-network
+    Remove Environment Variable  TEST_DATACENTER
+    Set Environment Variable  TEST_DATASTORE  sharedVmfs-0
+    Set Environment Variable  TEST_RESOURCE  cls
+    Set Environment Variable  TEST_TIMEOUT  30m
+
     ${run-as-ops-user}=  Get Environment Variable  RUN_AS_OPS_USER  0
     Set Environment Variable  RUN_AS_OPS_USER  0
     Install VIC with version to Test Server  ${old_version}  additional-args=--container-name-convention VCH_1_{name} --cpu-reservation 1 --cpu-shares normal --memory-reservation 1 --memory-shares normal --endpoint-cpu 1 --endpoint-memory 2048 --base-image-size 8GB --bridge-network-range 172.16.0.0/12 --container-network-firewall vm-network:published --certificate-key-size 2048
@@ -231,6 +261,12 @@ Configure VCH With Storage Quota
     Log  ${output}
     Should Contain  ${output}  Completed successfully
 
+Configure Rollback
+    [Arguments]  ${vchName}
+    ${output}=  Run  bin/vic-machine-linux configure --name=${vchName} --target=%{TEST_URL}%{TEST_DATACENTER} --thumbprint=%{TEST_THUMBPRINT} --user=%{TEST_USERNAME} --password=%{TEST_PASSWORD} --timeout %{TEST_TIMEOUT} --rollback
+    Log  ${output}
+    Should Contain  ${output}  Completed successfully
+
 Get Docker Info Exec Time
     [Arguments]  ${info}
     ${execTimeline}=  Get Lines Containing String  ${info}  elapsed
@@ -333,14 +369,15 @@ Test Storage Quota
     Check After Upgrade  ${output}  2  2  0  0  2  22  24
     Should Not Contain  ${output}  VCH storage limit:
 
-    ${status}=  Get State Of Github Issue  8437
-    Run Keyword If  '${status}' == 'closed'  Fail  Test 11-06-Upgrade-StorageQuota.robot needs to be updated now that Issue #8437 has been resolved
+#    ${status}=  Get State Of Github Issue  8437
+#    Run Keyword If  '${status}' == 'closed'  Fail  Test 11-06-Upgrade-StorageQuota.robot needs to be updated now that Issue #8437 has been resolved
 
- #   Reload VCH Related Environment Variables  ${vchName1}  ${vchIP1}  ${vchParams1}  ${vchAdmin1}
- #   Rollback
- #   Check Original Version
- #   Upgrade with ID
- #   ${output}=  Run Docker Info Cmd  ${vchParams1}
- #   ${output}=  Run Docker Info Cmd  ${vchParams1}
- #   Check After Upgrade  ${output}  4  2  0  2  2  36  40
+     Reload VCH Related Environment Variables  ${vchName1}  ${vchIP1}  ${vchParams1}  ${vchAdmin1}
+     Configure Rollback  ${vchName1}
+     Rollback
+     Check Original Version
+     Upgrade with ID
+     ${output}=  Run Docker Info Cmd  ${vchParams1}
+     ${output}=  Run Docker Info Cmd  ${vchParams1}
+     Check After Upgrade  ${output}  4  2  0  2  2  36  40
 
