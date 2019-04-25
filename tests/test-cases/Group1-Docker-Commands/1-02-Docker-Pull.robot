@@ -15,11 +15,30 @@
 *** Settings ***
 Documentation  Test 1-02 - Docker Pull
 Resource  ../../resources/Util.robot
-Suite Setup  Conditional Install VIC Appliance To Test Server
+Suite Setup  Test Setup
 Suite Teardown  Cleanup VIC Appliance On Test Server
-Test Timeout  20 minutes
+#Test Timeout  20 minutes
 
 *** Keywords ***
+Test Setup
+    Log To Console  Set environment variables up for GOVC
+    Set Environment Variable  GOVC_URL  10.83.3.64
+    Set Environment Variable  GOVC_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  GOVC_PASSWORD  Admin\!23
+
+    Log To Console  Deploy VIC to the VC cluster
+    Set Environment Variable  TEST_URL_ARRAY  10.83.3.64
+    Set Environment Variable  TEST_USERNAME  Administrator@vsphere.local
+    Set Environment Variable  TEST_PASSWORD  Admin\!23
+    Set Environment Variable  BRIDGE_NETWORK  bridge
+    Set Environment Variable  PUBLIC_NETWORK  vm-network
+    Remove Environment Variable  TEST_DATACENTER
+    Set Environment Variable  TEST_DATASTORE  local-0
+    Set Environment Variable  TEST_RESOURCE  cls
+    Set Environment Variable  TEST_TIMEOUT  30m
+
+    Conditional Install VIC Appliance To Test Server
+
 Get And Run MITMProxy Container
     # Need to change this container? Read README.md in vic/tests/resources/dockerfiles/docker-pull-mitm-proxy
     Wait Until Keyword Succeeds  5x  15 seconds  Pull image  victest/docker-layer-injection-proxy:latest
