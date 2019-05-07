@@ -21,7 +21,7 @@ Suite Teardown  Vdnet NSXT Topology Cleanup  ${NIMBUS_POD}  ${testrunid}
 *** Variables ***
 ${NIMBUS_LOCATION}  sc
 ${NIMBUS_LOCATION_FULL}  NIMBUS_LOCATION=${NIMBUS_LOCATION}
-${VDNET_LAUNCHER_HOST}  10.193.10.33
+${VDNET_LAUNCHER_HOST}  10.161.159.183
 ${NFS}  10.161.137.16
 ${USE_LOCAL_TOOLCHAIN}  0
 ${VDNET_MC_SETUP}  0
@@ -39,7 +39,7 @@ ${vdnet_root_pwd}  ca$hc0w
 *** Keywords ***
 Vdnet NSXT Topology Setup
     [Timeout]    120 minutes
-    Run Keyword If  "${NIMBUS_LOCATION}" == "wdc"  Set Suite Variable  ${NFS}  10.92.103.33
+    Run Keyword If  "${NIMBUS_LOCATION}" == "wdc"  Set Suite Variable  ${NFS}  10.161.152.47
     ${TESTRUNID}=  Evaluate  'NSXT' + str(random.randint(1000,9999))  modules=random
     ${json}=  OperatingSystem.Get File  tests/resources/nimbus-testbeds/vic-vdnet-nsxt.json
     ${file}=  Replace Variables  ${json}
@@ -64,7 +64,7 @@ Vdnet NSXT Topology Setup
     #Deploy the testbed
     Write  su - %{NIMBUS_PERSONAL_USER}
     Write  cd /src/%{NIMBUS_PERSONAL_USER}/nsx-qe/automation && VDNET_MC_SETUP=${VDNET_MC_SETUP} USE_LOCAL_TOOLCHAIN=${USE_LOCAL_TOOLCHAIN} NIMBUS_BASE=${NIMBUS_BASE} vdnet3/test.py --config /tmp/%{NIMBUS_PERSONAL_USER}/vic-vdnet-nsxt.json /src/%{NIMBUS_PERSONAL_USER}/nsx-qe/automation/TDS/NSXTransformers/Openstack/HybridEdge/OSDeployTds.yaml::DeployOSMHTestbed --testbed save 2>&1
-    Sleep  10s
+    Sleep  15s
     ${temp_output}=  Read
     Log  ${temp_output}
     ${result}=  Custom Read Until
@@ -255,37 +255,37 @@ Is Test Env Running
     Return From Keyword  ${False}
 
 *** Test Cases ***
-Basic VIC Tests with NSXT Topology
-    [Timeout]  60 minutes
-    Log To Console  \nStarting test...
-    ${bridge_ls_name}=  Evaluate  'vic-bridge-ls'
-    ${result}=  Create Nsxt Logical Switch  %{NSXT_MANAGER_URI}  ${nsxt_username}  ${nsxt_password}  ${bridge_ls_name}
-    Should Not Be Equal    ${result}    null
-    ${container_ls_name}=  Evaluate  'vic-container-ls'
-    ${result}=  Create Nsxt Logical Switch  %{NSXT_MANAGER_URI}  ${nsxt_username}  ${nsxt_password}  ${container_ls_name}
-    Should Not Be Equal    ${result}    null
-    Set Environment Variable  BRIDGE_NETWORK  ${bridge_ls_name}
-    Set Environment Variable  CONTAINER_NETWORK  ${container_ls_name}
-    #Wait for 5 mins to make sure the logical switches is synchronized with vCenter
-    Sleep  300
+#Basic VIC Tests with NSXT Topology
+#    [Timeout]  60 minutes
+#    Log To Console  \nStarting test...
+#    ${bridge_ls_name}=  Evaluate  'vic-bridge-ls'
+#    ${result}=  Create Nsxt Logical Switch  %{NSXT_MANAGER_URI}  ${nsxt_username}  ${nsxt_password}  ${bridge_ls_name}
+#    Should Not Be Equal    ${result}    null
+#    ${container_ls_name}=  Evaluate  'vic-container-ls'
+#    ${result}=  Create Nsxt Logical Switch  %{NSXT_MANAGER_URI}  ${nsxt_username}  ${nsxt_password}  ${container_ls_name}
+#    Should Not Be Equal    ${result}    null
+#    Set Environment Variable  BRIDGE_NETWORK  ${bridge_ls_name}
+#    Set Environment Variable  CONTAINER_NETWORK  ${container_ls_name}
+#    #Wait for 5 mins to make sure the logical switches is synchronized with vCenter
+#    Sleep  300
+#
+#    Install VIC Appliance To Test Server  additional-args=--container-network-firewall=%{CONTAINER_NETWORK}:open --container-network-ip-range %{CONTAINER_NETWORK}:50.0.9.100-50.0.9.200 --container-network-gateway %{CONTAINER_NETWORK}:50.0.9.1/24
+#    Run Regression Tests
 
-    Install VIC Appliance To Test Server  additional-args=--container-network-firewall=%{CONTAINER_NETWORK}:open --container-network-ip-range %{CONTAINER_NETWORK}:50.0.9.100-50.0.9.200 --container-network-gateway %{CONTAINER_NETWORK}:50.0.9.1/24
-    Run Regression Tests
+#    #Validate containers' connection when using container network
+#    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} run -it -d --net=public --name first ${busybox}
+#    Should Be Equal As Integers  ${rc}  0
+#    Should Not Contain  ${output}  Error
 
-    #Validate containers' connection when using container network
-    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} run -it -d --net=public --name first ${busybox}
-    Should Be Equal As Integers  ${rc}  0
-    Should Not Contain  ${output}  Error
-
-    ${ip}=  Get Container IP  %{VCH-PARAMS}  first  public
-    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} run --net=public ${debian} ping -c1 ${ip}
-    Should Be Equal As Integers  ${rc}  0
-    Should Not Contain  ${output}  Error
-
-    Run Keyword And Continue On Failure  Cleanup VIC Appliance On Test Server
+#    ${ip}=  Get Container IP  %{VCH-PARAMS}  first  public
+#    ${rc}  ${output}=  Run And Return Rc And Output  docker %{VCH-PARAMS} run --net=public ${debian} ping -c1 ${ip}
+#    Should Be Equal As Integers  ${rc}  0
+#    Should Not Contain  ${output}  Error
+#
+#    Run Keyword And Continue On Failure  Cleanup VIC Appliance On Test Server
 
 Selenium Grid Test in NSXT
-    [Timeout]  120 minutes
+    [Timeout]  180 minutes
     Log To Console  Starting Selenium Grid test in NSXT...
     ${bridge_ls_name_1}=  Evaluate  'vic-selenium-bridge-ls-1'
  
