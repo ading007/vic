@@ -22,6 +22,8 @@ Force Tags  hetero
 *** Keywords ***
 Heterogenous ESXi Setup
     [Timeout]  60 minutes
+    Pass Execution If  "${VC_VERSION}" == "ob-5112509"  skip this test suit.
+
     ${name}=  Evaluate  'vic-hetegeneous-' + str(random.randint(1000,9999))  modules=random
     Log To Console  Create a new simple vc cluster with spec vic-hetegeneous.rb...
     ${out}=  Deploy Nimbus Testbed  spec=vic-hetergeneous-esxi.rb  args=--noSupportBundles --plugin testng --vcvaBuild "${VC_VERSION}" --esxBuild "${ESX_VERSION}" --testbedName vic-hetegeneous --runName ${name}
@@ -63,6 +65,7 @@ Heterogenous ESXi Setup
 
 *** Test Cases ***
 Test
+    Pass Execution If  "${VC_VERSION}" == "ob-5112509"  skip this test suit.
     Log To Console  \nStarting test...
     Install VIC Appliance To Test Server  certs=${false}  vol=default
     Run Regression Tests
