@@ -33,5 +33,7 @@ Longevity
     \   Install VIC Appliance To Test Server  debug=%{DEBUG_VCH_LEVEL}  additional-args=%{STATIC_VCH_OPTIONS} %{SYSLOG_VCH_OPTION} --container-name-convention longevity-${date}-{id}
     \   Repeat Keyword  ${rand} times  Run Regression Tests
     \   Cleanup VIC Appliance On Test Server
+    \   ${check_container}=  Run  govc find . -type m |grep -i longevity
+    \   Should Be Empty  ${check_container}
 
     Post Message To Slack Channel  general  Longevity has passed on %{GOVC_URL}
