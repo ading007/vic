@@ -16,8 +16,8 @@
 Documentation  Test 5-11 - Multiple Clusters
 Resource  ../../resources/Util.robot
 Suite Setup  Nimbus Suite Setup  Multiple Cluster Setup
-Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
-Test Teardown  Cleanup VIC Appliance On Test Server
+#Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
+#Test Teardown  Cleanup VIC Appliance On Test Server
 
 *** Keywords ***
 Multiple Cluster Setup
@@ -73,4 +73,4 @@ Test
     Log To Console  \nStarting test...
 
     Install VIC Appliance To Test Server  certs=${false}  vol=default
-    Run Regression Tests
+ #   Run Regression Tests
