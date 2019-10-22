@@ -16,7 +16,7 @@
 Documentation  Test 5-15 - NFS Datastore
 Resource  ../../resources/Util.robot
 Suite Setup  Nimbus Suite Setup  NFS Datastore Setup
-Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
+#Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
 
 *** Keywords ***
 NFS Datastore Setup
@@ -60,4 +60,4 @@ Test
 
     Run Regression Tests
 
-    Cleanup VIC Appliance On Test Server
+ #   Cleanup VIC Appliance On Test Server
