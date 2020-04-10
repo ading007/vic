@@ -16,7 +16,7 @@
 Documentation  Test 5-25 - OPS-User-Grant
 Resource  ../../resources/Util.robot
 Suite Setup  Nimbus Suite Setup  Ops User Create
-Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
+#Suite Teardown  Run Keyword And Ignore Error  Nimbus Pod Cleanup  ${nimbus_pod}  ${testbedname}
 
 *** Keywords ***
 Ops User Create
@@ -170,35 +170,35 @@ vic-machine create grants ops-user perms
 
     [Teardown]  Cleanup VIC Appliance On Test Server
 
-granted ops-user perms work after upgrade
-    [Tags]  vsphere70-not-support
-    Install VIC with version to Test Server  v1.4.0  additional-args=--ops-user ${ops_user_name} --ops-password ${ops_user_password} --ops-grant-perms
+#granted ops-user perms work after upgrade
+#    [Tags]  vsphere70-not-support
+#    Install VIC with version to Test Server  v1.4.0  additional-args=--ops-user ${ops_user_name} --ops-password ${ops_user_password} --ops-grant-perms
 
-    Check Original Version
-    Upgrade
-    Check Upgraded Version
-
-    # Run a govc test to check that access is denied on some resources
-    Attempt To Create Resource Pool
-
-    Run Regression Tests
-
-    Run privilege-dependent docker operations
-
-    [Teardown]  Cleanup VIC Appliance On Test Server
-
-Test with VM-Host Affinity
-    Log To Console  \nStarting test...
-    Install VIC Appliance To Test Server  additional-args=--ops-user ${ops_user_name} --ops-password ${ops_user_password} --ops-grant-perms --affinity-vm-group
+#    Check Original Version
+#    Upgrade
+#    Check Upgraded Version
 
     # Run a govc test to check that access is denied on some resources
-    Attempt To Create Resource Pool
+#    Attempt To Create Resource Pool
 
-    Run Regression Tests
+#    Run Regression Tests
 
-    Run privilege-dependent docker operations
+#    Run privilege-dependent docker operations
 
-    [Teardown]  Cleanup VIC Appliance On Test Server
+#    [Teardown]  Cleanup VIC Appliance On Test Server
+
+#Test with VM-Host Affinity
+#    Log To Console  \nStarting test...
+#    Install VIC Appliance To Test Server  additional-args=--ops-user ${ops_user_name} --ops-password ${ops_user_password} --ops-grant-perms --affinity-vm-group
+
+    # Run a govc test to check that access is denied on some resources
+#    Attempt To Create Resource Pool
+
+#    Run Regression Tests
+
+#    Run privilege-dependent docker operations
+
+#    [Teardown]  Cleanup VIC Appliance On Test Server
 
 vic-machine configure grants ops-user perms
     Install VIC Appliance To Test Server
